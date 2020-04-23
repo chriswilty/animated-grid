@@ -1,0 +1,29 @@
+{
+  "name": "grid-animated",
+  "version": "0.1.0",
+  "description": "Custom Element / Web Component displaying its children in grid or list view",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.prod.js",
+    "start": "webpack-dev-server --config webpack.dev.js",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "keywords": [
+    "HTML5",
+    "JavaScript",
+    "ECMAScript",
+    "WebComponents",
+    "Custom Element",
+    "Yarn",
+    "Webpack",
+    "template"
+  ],
+  "license": "UNLICENSE",
+  "devDependencies": {
+    "pnp-webpack-plugin": "^1.6.4",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3",
+    "webpack-merge": "^4.2.2"
+  }
+}
