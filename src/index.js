@@ -6,14 +6,16 @@ import 'src/components/SquareBox';
 const ATTR_MODE = "mode";
 
 // TODO
-// 1. Instead of hard-coding box divs, calculate required number according to number of child elements set.
+// 1. Light refactoring.
 // 2. Extract box to separate component.
-const numberOfSquares = numNodes => {
+// 3. Extract THIS component from index file, and set child elements from outside.
+
+const lengthOfSquare = numNodes => {
   let side = 1;
   while (numNodes > Math.pow(side, 2)) {
     side += 1;
   }
-  return Math.pow(side, 2);
+  return side;
 };
 
 const createTemplate = template`
@@ -39,39 +41,32 @@ const createTemplate = template`
     
     square-box {
       max-width: 90vh;
+      border: 2px solid #cfcfcf;
     }
     
     .box {
-      margin: 1px;
-      border: 2px solid forestgreen;
+      position: absolute;
+      margin: 0;
+      border: 2px solid #cfcfcf;
       border-radius: 8px;
+      padding: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
       background-color: white;
-      font-size: 64px;
+      transition: width 1.2s, height 1.2s, left 1.2s, top 1.2s;
     }
-    .box.grid {
-      width: calc(100% / 3 - 2px);
-      height: calc(100% / 3 - 2px);
+    .box.selected {
+      border-color: #3f9f3f;
     }
-    .box.list {
-      width: calc(100% - 2px);
-      height: calc(100% / 9 - 2px);
+    .number {
+      font-size: 48px;
     }
   </style>
 
   <div class="wrapper">
     <square-box>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
-      <div class="box"></div>
+      
     </square-box>
   </div>
 `;
@@ -87,29 +82,56 @@ class App extends HTMLElement {
     this._shadowRoot = this.attachShadow({ mode: 'open' });
     this._shadowRoot.appendChild(createTemplate());
 
-    this.$boxes = this._shadowRoot.querySelectorAll('.box');
+    this.$squareBox = this._shadowRoot.querySelector('square-box');
+    this.$boxes = [];
 
-    // array of elements which each take a "mode" attribute ("grid", "list")
-    this.childElements = new Array(9).fill(0).map((_, i) => i + 1);
+    // TODO Input array of elements which each take a "mode" attribute ("grid", "list")
+    this.childElements = new Array(8).fill(0).map((_, i) => {
+      const span = document.createElement('span');
+      span.innerHTML = `${i + 1}`;
+      span.classList.add('number');
+      return span;
+    });
   }
 
   connectedCallback() {
-    this.mode = 'grid';
-    this.$boxes.forEach((node, index) => {
-      node.innerHTML = `${this.childElements[index]}`;
-      node.addEventListener('click', () => {
-        this.mode = (this.mode === 'grid' ? 'list' : 'grid');
-      });
+    this.$boxes = this.childElements.map(childNode => {
+      const box = document.createElement('div');
+
+      box.appendChild(childNode);
+      box.classList.add('box');
+      box.addEventListener('click', this.onBoxClick.bind(this));
+
+      return box;
     });
+    this.$squareBox.append(...this.$boxes);
+
+    this.mode = 'grid';
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === ATTR_MODE && newValue !== oldValue) {
       console.log(`${ATTR_MODE}=${newValue}`);
-      this.$boxes.forEach(box => {
-        oldValue && box.classList.remove(oldValue);
-        box.classList.add(newValue);
-      });
+
+      // TODO Refactor these two loops into one!
+      if (newValue === 'grid') {
+        const sideLength = lengthOfSquare(this.$boxes.length);
+        this.$boxes.forEach((box, index) => {
+          const row = Math.floor(index / sideLength);
+          const col = index % sideLength;
+          box.style.width = box.style.height = `calc(100% / ${sideLength} - 2px)`;
+          box.style.top = `calc(100% / ${sideLength} * ${row} + 1px)`;
+          box.style.left = `calc(100% / ${sideLength} * ${col} + 1px`;
+        });
+      } else {
+        const sideLength = this.$boxes.length;
+        this.$boxes.forEach((box, index) => {
+          box.style.width = 'calc(100% - 2px)';
+          box.style.height = `calc(100% / ${sideLength} - 2px)`;
+          box.style.top = `calc(100% / ${sideLength} * ${index} + 1px)`;
+          box.style.left = '1px';
+        });
+      }
     }
   }
 
@@ -118,6 +140,14 @@ class App extends HTMLElement {
   }
   set mode(value) {
     this.setAttribute(ATTR_MODE, value);
+  }
+
+  onBoxClick({ target }) {
+    this.$boxes.forEach(boxNode => {
+      const func = this.mode === 'grid' && boxNode === target ? 'add' : 'remove';
+      boxNode.classList[func]('selected');
+    });
+    this.mode = (this.mode === 'grid' ? 'list' : 'grid');
   }
 }
 

@@ -17,7 +17,6 @@ const createTemplate = template`
       width: 100%;
       margin: auto;
       padding-bottom: 100%;
-      background-color: #dfdfdf;
     }
     .square {
       position: absolute;
