@@ -1,6 +1,7 @@
 import { commonStyle } from 'src/common-style';
 import { template } from 'src/tags/html';
 
+// TODO Some styles such as border colour should be settable as attributes.
 const createTemplate = template`
   <style>
     :host {
@@ -26,6 +27,7 @@ const createTemplate = template`
       height: 100%;
       display: flex;
       flex-wrap: wrap;
+      border: 2px solid #cfcfcf;
     }
   </style>
   <div class="wrapper">
@@ -35,11 +37,7 @@ const createTemplate = template`
   </div>
 `;
 
-class SquareBox extends HTMLElement {
-  static get observedAttributes() {
-    return [ATTR_MODE];
-  }
-
+class SquareContainer extends HTMLElement {
   constructor() {
     super();
 
@@ -48,4 +46,4 @@ class SquareBox extends HTMLElement {
   }
 }
 
-window.customElements.define('square-box', SquareBox);
+window.customElements.define('square-container', SquareContainer);

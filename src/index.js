@@ -1,23 +1,16 @@
 import { commonStyle } from 'src/common-style';
+import * as animatedBoxAttributes from 'src/components/AnimatedBox';
 import { template } from 'src/tags/html';
 
-import 'src/components/SquareBox';
+import 'src/components/AnimatedBox';
+import 'src/components/SquareContainer';
 
 const ATTR_MODE = "mode";
-const TRANSITION_SECS = 1.0;
 
 // TODO
-// 1. Light refactoring.
-// 2. Extract box to separate component.
-// 3. Extract THIS component from index file, and set child elements from outside.
-
-const lengthOfSquare = numNodes => {
-  let side = 1;
-  while (numNodes > Math.pow(side, 2)) {
-    side += 1;
-  }
-  return side;
-};
+// 1. Extract THIS container component from index file, and set child elements from outside.
+// 2. Add side panel for displaying selected item.
+// 3. Connect to some useful content ... Pinterest?
 
 const createTemplate = template`
   <style>
@@ -40,35 +33,17 @@ const createTemplate = template`
       height: 90vh;
     }
     
-    square-box {
+    square-container {
       max-width: 90vh;
-      border: 2px solid #cfcfcf;
     }
     
-    .box {
-      position: absolute;
-      margin: 0;
-      border: 2px solid #cfcfcf;
-      border-radius: 8px;
-      padding: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: white;
-      transition: width ${TRANSITION_SECS}s, height ${TRANSITION_SECS}s, left ${TRANSITION_SECS}s, top ${TRANSITION_SECS}s;
-    }
-    .box.selected {
-      border-color: #3f9f3f;
-    }
     .number {
       font-size: 48px;
     }
   </style>
 
   <div class="wrapper">
-    <square-box>
-      
-    </square-box>
+    <square-container></square-container>
   </div>
 `;
 
@@ -83,7 +58,7 @@ class App extends HTMLElement {
     this._shadowRoot = this.attachShadow({ mode: 'open' });
     this._shadowRoot.appendChild(createTemplate());
 
-    this.$squareBox = this._shadowRoot.querySelector('square-box');
+    this.$squareContainer = this._shadowRoot.querySelector('square-container');
     this.$boxes = [];
 
     // TODO Input array of elements which each take a "mode" attribute ("grid", "list")
@@ -96,16 +71,17 @@ class App extends HTMLElement {
   }
 
   connectedCallback() {
-    this.$boxes = this.childElements.map(childNode => {
-      const box = document.createElement('div');
+    this.$boxes = this.childElements.map((childNode, index, elements) => {
+      const box = document.createElement('animated-box');
 
+      box.setAttribute(animatedBoxAttributes.ATTR_INDEX, `${index}`);
+      box.setAttribute(animatedBoxAttributes.ATTR_BOX_COUNT, `${elements.length}`);
       box.appendChild(childNode);
-      box.classList.add('box');
       box.addEventListener('click', this.onBoxClick.bind(this));
 
       return box;
     });
-    this.$squareBox.append(...this.$boxes);
+    this.$squareContainer.append(...this.$boxes);
 
     this.mode = 'grid';
   }
@@ -114,22 +90,8 @@ class App extends HTMLElement {
     if (name === ATTR_MODE && newValue !== oldValue) {
       console.log(`${ATTR_MODE}=${newValue}`);
 
-      let topLength, sideLength;
-      if (newValue === 'grid') {
-        topLength = lengthOfSquare(this.$boxes.length);
-        sideLength = topLength;
-      } else {
-        topLength = 1;
-        sideLength = this.$boxes.length;
-      }
-
-      this.$boxes.forEach((box, index) => {
-        const row = Math.floor(index / topLength);
-        const col = index % topLength;
-        box.style.width = `calc(100% / ${topLength} - 2px)`;
-        box.style.height = `calc(100% / ${sideLength} - 2px)`;
-        box.style.top = `calc(100% / ${sideLength} * ${row} + 1px)`;
-        box.style.left = `calc(100% / ${topLength} * ${col} + 1px)`;
+      this.$boxes.forEach(box => {
+        box.setAttribute(animatedBoxAttributes.ATTR_MODE, newValue);
       });
     }
   }
@@ -143,8 +105,11 @@ class App extends HTMLElement {
 
   onBoxClick({ target }) {
     this.$boxes.forEach(boxNode => {
-      const func = this.mode === 'grid' && boxNode === target ? 'add' : 'remove';
-      boxNode.classList[func]('selected');
+      if (this.mode === 'grid' && boxNode.contains(target)) {
+        boxNode.setAttribute(animatedBoxAttributes.ATTR_SELECTED, '');
+      } else {
+        boxNode.removeAttribute(animatedBoxAttributes.ATTR_SELECTED);
+      }
     });
     this.mode = (this.mode === 'grid' ? 'list' : 'grid');
   }
