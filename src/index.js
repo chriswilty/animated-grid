@@ -4,6 +4,7 @@ import { template } from 'src/tags/html';
 import 'src/components/SquareBox';
 
 const ATTR_MODE = "mode";
+const TRANSITION_SECS = 1.0;
 
 // TODO
 // 1. Light refactoring.
@@ -54,7 +55,7 @@ const createTemplate = template`
       align-items: center;
       justify-content: center;
       background-color: white;
-      transition: width 1.2s, height 1.2s, left 1.2s, top 1.2s;
+      transition: width ${TRANSITION_SECS}s, height ${TRANSITION_SECS}s, left ${TRANSITION_SECS}s, top ${TRANSITION_SECS}s;
     }
     .box.selected {
       border-color: #3f9f3f;
@@ -113,25 +114,23 @@ class App extends HTMLElement {
     if (name === ATTR_MODE && newValue !== oldValue) {
       console.log(`${ATTR_MODE}=${newValue}`);
 
-      // TODO Refactor these two loops into one!
+      let topLength, sideLength;
       if (newValue === 'grid') {
-        const sideLength = lengthOfSquare(this.$boxes.length);
-        this.$boxes.forEach((box, index) => {
-          const row = Math.floor(index / sideLength);
-          const col = index % sideLength;
-          box.style.width = box.style.height = `calc(100% / ${sideLength} - 2px)`;
-          box.style.top = `calc(100% / ${sideLength} * ${row} + 1px)`;
-          box.style.left = `calc(100% / ${sideLength} * ${col} + 1px`;
-        });
+        topLength = lengthOfSquare(this.$boxes.length);
+        sideLength = topLength;
       } else {
-        const sideLength = this.$boxes.length;
-        this.$boxes.forEach((box, index) => {
-          box.style.width = 'calc(100% - 2px)';
-          box.style.height = `calc(100% / ${sideLength} - 2px)`;
-          box.style.top = `calc(100% / ${sideLength} * ${index} + 1px)`;
-          box.style.left = '1px';
-        });
+        topLength = 1;
+        sideLength = this.$boxes.length;
       }
+
+      this.$boxes.forEach((box, index) => {
+        const row = Math.floor(index / topLength);
+        const col = index % topLength;
+        box.style.width = `calc(100% / ${topLength} - 2px)`;
+        box.style.height = `calc(100% / ${sideLength} - 2px)`;
+        box.style.top = `calc(100% / ${sideLength} * ${row} + 1px)`;
+        box.style.left = `calc(100% / ${topLength} * ${col} + 1px)`;
+      });
     }
   }
 
