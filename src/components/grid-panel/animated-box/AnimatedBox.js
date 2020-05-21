@@ -2,11 +2,11 @@ import { commonStyle } from 'src/common-style';
 import { template } from 'src/tags/html';
 
 export const ATTR_INDEX = 'index';
-export const ATTR_BOX_COUNT = 'box-count';
+export const ATTR_BOXCOUNT = 'boxcount';
 export const ATTR_MODE = 'mode';
 export const ATTR_SELECTED = 'selected';
 export const ATTR_TRANSITION = 'transition';
-const DEFAULT_TRANSITION_SECS = 1.0;
+const DEFAULT_TRANSITION_SECS = 0.8;
 
 const calculateGridLength = numNodes => {
   let side = 1;
@@ -43,7 +43,7 @@ const createTemplate = template`
 
 class AnimatedBox extends HTMLElement {
   static get observedAttributes() {
-    return [ATTR_INDEX, ATTR_BOX_COUNT, ATTR_MODE, ATTR_SELECTED, ATTR_TRANSITION];
+    return [ATTR_INDEX, ATTR_BOXCOUNT, ATTR_MODE, ATTR_SELECTED, ATTR_TRANSITION];
   }
 
   constructor() {
@@ -62,10 +62,9 @@ class AnimatedBox extends HTMLElement {
       this.$box.classList[func]('selected');
     } else if (name === ATTR_TRANSITION && newValue !== oldValue) {
       const secs = newValue || DEFAULT_TRANSITION_SECS;
-      console.log(`secs=${secs} current=${this.$box.style.transition}`);
       this.$box.style.transition = `width ${secs}s, height ${secs}s, left ${secs}s, top ${secs}s`;
     } else {
-      if (name === ATTR_BOX_COUNT && newValue !== oldValue) {
+      if (name === ATTR_BOXCOUNT && newValue !== oldValue) {
         this._gridLength = calculateGridLength(newValue);
       }
       if (newValue !== oldValue) {
@@ -77,7 +76,7 @@ class AnimatedBox extends HTMLElement {
   setNewPosition() {
     const mode = this.getAttribute(ATTR_MODE);
     const index = this.getAttribute(ATTR_INDEX);
-    const boxCount = this.getAttribute(ATTR_BOX_COUNT);
+    const boxCount = this.getAttribute(ATTR_BOXCOUNT);
 
     if (boxCount && mode && index !== undefined) {
       let topLength, sideLength;
