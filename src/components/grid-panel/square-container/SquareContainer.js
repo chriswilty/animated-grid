@@ -4,20 +4,19 @@ import { template } from 'src/tags/html';
 // TODO Some styles such as border colour should be settable as attributes.
 const createTemplate = template`
   <style>
+    ${commonStyle}
+    
     :host {
       width: 100%;
       height: 100%;
       display: flex;
       overflow: hidden;
     }
-    
-    ${commonStyle}
-    
     .wrapper {
       position: relative;
       width: 100%;
       margin: auto;
-      padding-bottom: 100%;
+      height: 100%;
     }
     .square {
       position: absolute;
@@ -28,6 +27,7 @@ const createTemplate = template`
       display: flex;
       flex-wrap: wrap;
       border: 2px solid #cfcfcf;
+      border-radius: 10px;
     }
   </style>
   <div class="wrapper">
