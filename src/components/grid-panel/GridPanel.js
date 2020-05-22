@@ -9,22 +9,24 @@ export const ATTR_MODE = "mode";
 
 const onSelectEvent = itemIndex => new CustomEvent('onSelect', { detail: itemIndex });
 
+// TODO Sort out that width-based-on-vh measurement?
 const createTemplate = template`
   <style>
     :host {
       position: relative;
+      width: 100%;
+      display: flex;
     }
     ${commonStyle}
     
     .wrapper {
       display: flex;
       justify-content: center;
-      width: 80vw;
-      height: 90vh;
+      width: 100%;
     }
     
     square-container {
-      max-width: 90vh;
+      max-width: calc(100vh - 48px);
     }
   </style>
 
