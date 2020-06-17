@@ -26,8 +26,6 @@ const createTemplate = template`
       height: 100%;
       display: flex;
       flex-wrap: wrap;
-      border: 2px solid #cfcfcf;
-      border-radius: 10px;
     }
   </style>
   <div class="wrapper">

@@ -72,6 +72,7 @@ class GridPanel extends HTMLElement {
       return box;
     });
 
+    this.$squareContainer.textContent = '';
     this.$squareContainer.append(...this.$boxes);
   }
 

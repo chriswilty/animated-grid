@@ -1,3 +1,4 @@
+const Dotenv = require('dotenv-webpack');
 const PnpWebpackPlugin = require('pnp-webpack-plugin');
 
 module.exports = {
@@ -8,6 +9,17 @@ module.exports = {
     publicPath: '/',
     filename: 'bundle.js'
   },
+  module: {
+    rules: [
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: ['file-loader']
+      }
+    ]
+  },
+  plugins: [
+    new Dotenv()
+  ],
   resolve: {
     plugins: [
       PnpWebpackPlugin,

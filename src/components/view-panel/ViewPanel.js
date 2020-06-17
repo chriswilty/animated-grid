@@ -1,8 +1,6 @@
 import { commonStyle } from 'src/common-style';
 import { template } from 'src/tags/html';
 
-const DEFAULT_TRANSITION_SECS = 0.8;
-
 const createTemplate = template`
   <style>
     ${commonStyle}
@@ -12,13 +10,13 @@ const createTemplate = template`
       left: 100%;
       top: 0;
       bottom: 0;
-      width: 60%;
+      width: calc(100% * 2 / 3);
       display: flex;
-      transition: left ${DEFAULT_TRANSITION_SECS}s;
     }
     .wrapper {
       width: 100%;
       height: 100%;
+      overflow: hidden;
       border: 2px solid #cfcfcf;
       border-radius: 10px;
       display: flex;
@@ -42,13 +40,12 @@ class ViewPanel extends HTMLElement {
   }
 
   set contentElement(element) {
-    console.log(element);
     if (element === null) {
       this.$host.style.left = '100%';
     } else {
       this.$wrapper.firstChild && this.$wrapper.firstChild.remove();
       this.$wrapper.appendChild(element.cloneNode(true));
-      this.$host.style.left = '40%';
+      this.$host.style.left = 'calc(100% / 3)';
     }
   }
 }

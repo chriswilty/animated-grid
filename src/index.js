@@ -1,15 +1,15 @@
 import { commonStyle } from 'src/common-style';
+import { getPage } from 'src/service/pexel';
 import { template } from 'src/tags/html';
 
 import 'src/components/grid-panel';
+import 'src/components/loading';
 import 'src/components/view-panel';
+
+import PexelImage from 'src/assets/pexels.png';
 
 const DEFAULT_TRANSITION_SECS = 0.8;
 const SPACING_XL = 18;
-
-// TODO
-// 1. Add right-side panel for displaying selected item.
-// 2. Connect to some useful content ... Pinterest?
 
 const createTemplate = template`
   <style>
@@ -28,10 +28,11 @@ const createTemplate = template`
       transition: width ${DEFAULT_TRANSITION_SECS}s;
     }
     grid-panel.side {
-      width: 40%;
+      width: calc(100% / 3);
     }
     view-panel {
       padding: ${SPACING_XL}px ${SPACING_XL}px ${SPACING_XL}px 0;
+      transition: left ${DEFAULT_TRANSITION_SECS}s;
     }
   </style>
 
@@ -53,15 +54,30 @@ class App extends HTMLElement {
   }
 
   connectedCallback() {
-    this._contentElements = new Array(8).fill(0).map((_, i) => {
-      const span = document.createElement('span');
-      span.innerHTML = `${i + 1}`;
-      span.style.fontSize = '48px';
-      return span;
+    const loadingSpinner = document.createElement('loading-spinner');
+    loadingSpinner.image = PexelImage;
+    this.$gridPanel.contentElements = [loadingSpinner];
+
+    this._loadContent();
+
+    // TODO
+    // - Add a close button to view panel.
+  }
+
+  async _loadContent() {
+    const { photos } = await getPage({ searchTerm: 'red', pageSize: 9 });
+
+    this._contentElements = photos.map(photo => {
+      const container = document.createElement('div');
+      container.style.background = `url(${photo.url.original}) center/cover no-repeat`;
+      container.style.width = '100%';
+      container.style.height = '100%';
+      return container;
     });
 
     this.$gridPanel.contentElements = this._contentElements;
     this.$gridPanel.addEventListener('onSelect', ({ detail: selectedIndex }) => {
+      // TODO Fix this so always select element and always list mode
       this.$gridPanel.setAttribute('mode', selectedIndex === null ? 'grid' : 'list');
       this.$gridPanel.classList[selectedIndex === null ? 'remove' : 'add']('side');
       this.$viewPanel.contentElement = (selectedIndex !== null ? this._contentElements[selectedIndex] : null);

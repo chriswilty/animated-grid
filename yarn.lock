@@ -22,6 +22,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/json-schema@npm:^7.0.4":
+  version: 7.0.5
+  resolution: "@types/json-schema@npm:7.0.5"
+  checksum: 2/6290f9fe93ac957b244262d5ff56cfd3045c63da6ed88dcc2d5b84131e6284c8e6213bf0cb81423a4f940182647bcd69057309c982f8db64dfff8f65f800ef80
+  languageName: node
+  linkType: hard
+
 "@types/minimatch@npm:*":
   version: 3.0.3
   resolution: "@types/minimatch@npm:3.0.3"
@@ -275,7 +282,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^6.1.0, ajv@npm:^6.10.2, ajv@npm:^6.5.5":
+"ajv@npm:^6.1.0, ajv@npm:^6.10.2, ajv@npm:^6.12.2, ajv@npm:^6.5.5":
   version: 6.12.2
   resolution: "ajv@npm:6.12.2"
   dependencies:
@@ -1442,6 +1449,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv-defaults@npm:^1.0.2":
+  version: 1.1.1
+  resolution: "dotenv-defaults@npm:1.1.1"
+  dependencies:
+    dotenv: ^6.2.0
+  checksum: 2/cb00ae7bf16b64ec6cad10007cce9ee2d03e9ebdb44e982ec977920e03d68c1a15f5b884621029d6936c0a22c3d8b3409b18005654b267e89eeddc7d336d7dfe
+  languageName: node
+  linkType: hard
+
+"dotenv-webpack@npm:^1.8.0":
+  version: 1.8.0
+  resolution: "dotenv-webpack@npm:1.8.0"
+  dependencies:
+    dotenv-defaults: ^1.0.2
+  peerDependencies:
+    webpack: ^1 || ^2 || ^3 || ^4
+  checksum: 2/a4ef436b38ed99f0dca297e8e0aafca47cebf8fc4b30027f1d14607f782db296640600cbec3bbd3fb382d54542534b98628ec24d6dd7bbb8bafe06282d11133f
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "dotenv@npm:6.2.0"
+  checksum: 2/2589b4c8e3d9a54eaad276d0a6a3821eb73250b439edd7ba70147dfe4e12148461919817506c7dfae3f1ea72a88cb38bf01b0656fe0c28e8e51df9391ef76e73
+  languageName: node
+  linkType: hard
+
 "duplexify@npm:^3.4.2, duplexify@npm:^3.6.0":
   version: 3.7.1
   resolution: "duplexify@npm:3.7.1"
@@ -1839,6 +1873,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"file-loader@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "file-loader@npm:6.0.0"
+  dependencies:
+    loader-utils: ^2.0.0
+    schema-utils: ^2.6.5
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  checksum: 2/745f5ee763fe46f2124921ff4fb7ed601eb1e8d6ac975cf6af321b3957ce8f78afb885c636e64a9031634e85e26dc9e8ef40ebeb532153c6a80a7d06b56876cb
+  languageName: node
+  linkType: hard
+
 "file-uri-to-path@npm:1.0.0":
   version: 1.0.0
   resolution: "file-uri-to-path@npm:1.0.0"
@@ -2188,6 +2234,8 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "grid-animated@workspace:."
   dependencies:
+    dotenv-webpack: ^1.8.0
+    file-loader: ^6.0.0
     pnp-webpack-plugin: ^1.6.4
     webpack: ^4.43.0
     webpack-cli: ^3.3.11
@@ -2920,6 +2968,17 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"json5@npm:^2.1.2":
+  version: 2.1.3
+  resolution: "json5@npm:2.1.3"
+  dependencies:
+    minimist: ^1.2.5
+  bin:
+    json5: lib/cli.js
+  checksum: 2/957e4937106cf59975aa0281e68911534d65c8a25be5b4d3559aa55eba351ccab516a943a60ba33e461e4b8af749939986e311de910cbcfd197410b57d971741
+  languageName: node
+  linkType: hard
+
 "jsprim@npm:^1.2.2":
   version: 1.4.1
   resolution: "jsprim@npm:1.4.1"
@@ -3006,6 +3065,17 @@ fsevents@^1.2.7:
     emojis-list: ^3.0.0
     json5: ^1.0.1
   checksum: 2/9fd690e57ad78d32ff2942383b4a7a175eba575280ba5aca3b4d03183fec34aa0db314f49bd3301adf7e60b02471644161bf53149e8f2d18fd6a52627e95a927
+  languageName: node
+  linkType: hard
+
+"loader-utils@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "loader-utils@npm:2.0.0"
+  dependencies:
+    big.js: ^5.2.2
+    emojis-list: ^3.0.0
+    json5: ^2.1.2
+  checksum: 2/a1c2e48781e1501e126a32c39bc1fb1a7e2f02bd99e5aeb8853ddaf3c121fffefcc4579367f97ca6890b58369e571af1c9ec82e4e20db238d560ab359ff25c33
   languageName: node
   linkType: hard
 
@@ -4462,6 +4532,17 @@ fsevents@^1.2.7:
     ajv-errors: ^1.0.0
     ajv-keywords: ^3.1.0
   checksum: 2/d2f753e7a17c6054cb8c6d0806daeddac73ea2a192e452f506e50af14da1999d1435618b81a616d9f72e1606c0e46bf1870c9b429bce5d3a949d34455e6e54ff
+  languageName: node
+  linkType: hard
+
+"schema-utils@npm:^2.6.5":
+  version: 2.7.0
+  resolution: "schema-utils@npm:2.7.0"
+  dependencies:
+    "@types/json-schema": ^7.0.4
+    ajv: ^6.12.2
+    ajv-keywords: ^3.4.1
+  checksum: 2/5d3e7c9e532712bbe0b7ba2f0bdbebc88ca3066c00ceb89877667c3c7b7ea5ee65e0ff7ffbf5164ebda43b0726166d4d39b382e91e9554b7ad2f6b06e77f947d
   languageName: node
   linkType: hard
 

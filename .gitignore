@@ -1,3 +1,6 @@
+# Env vars should be injected into environment at startup, but can use a local .env file for development
+.env
+
 # Logs
 logs
 *.log

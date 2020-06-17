@@ -22,10 +22,10 @@ const createTemplate = template`
     
     .box {
       position: absolute;
+      overflow: hidden;
       margin: 0;
       border: 2px solid #cfcfcf;
       border-radius: 8px;
-      padding: 2px;
       display: flex;
       align-items: center;
       justify-content: center;
