@@ -59,29 +59,32 @@ class App extends HTMLElement {
     this.$gridPanel.contentElements = [loadingSpinner];
 
     this._loadContent();
-
-    // TODO
-    // - Add a close button to view panel.
   }
 
   async _loadContent() {
     const { photos } = await getPage({ searchTerm: 'red', pageSize: 9 });
+    const onSelect = this.onSelectBox.bind(this);
 
     this._contentElements = photos.map(photo => {
       const container = document.createElement('div');
       container.style.background = `url(${photo.url.original}) center/cover no-repeat`;
       container.style.width = '100%';
       container.style.height = '100%';
+      container.addEventListener('click', onSelect)
       return container;
     });
 
     this.$gridPanel.contentElements = this._contentElements;
-    this.$gridPanel.addEventListener('onSelect', ({ detail: selectedIndex }) => {
-      // TODO Fix this so always select element and always list mode
-      this.$gridPanel.setAttribute('mode', selectedIndex === null ? 'grid' : 'list');
-      this.$gridPanel.classList[selectedIndex === null ? 'remove' : 'add']('side');
-      this.$viewPanel.contentElement = (selectedIndex !== null ? this._contentElements[selectedIndex] : null);
-    });
+
+    this.$viewPanel.addEventListener('onClose', () => onSelect({ target: null }));
+  }
+
+  onSelectBox({ target }) {
+    const selectedIndex = target ? this._contentElements.findIndex(element => element === target) : -1;
+    this.$gridPanel.setAttribute('mode', selectedIndex < 0 ? 'grid' : 'list');
+    this.$gridPanel.setAttribute('selectedindex', `${selectedIndex}`);
+    this.$gridPanel.classList[selectedIndex < 0 ? 'remove' : 'add']('side');
+    this.$viewPanel.contentElement = selectedIndex < 0 ? null : this._contentElements[selectedIndex];
   }
 }
 

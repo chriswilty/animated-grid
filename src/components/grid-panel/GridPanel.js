@@ -5,9 +5,8 @@ import * as animatedBoxAttributes from './animated-box';
 import './animated-box';
 import './square-container';
 
-const ATTR_MODE = "mode";
-
-const onSelectEvent = itemIndex => new CustomEvent('onSelect', { detail: itemIndex });
+const ATTR_MODE = 'mode';
+const ATTR_SELECTEDINDEX = 'selectedindex';
 
 // TODO Sort out that width-based-on-vh measurement?
 const createTemplate = template`
@@ -36,7 +35,7 @@ const createTemplate = template`
 
 class GridPanel extends HTMLElement {
   static get observedAttributes() {
-    return [ ATTR_MODE ];
+    return [ ATTR_MODE, ATTR_SELECTEDINDEX ];
   }
 
   constructor() {
@@ -50,45 +49,34 @@ class GridPanel extends HTMLElement {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
-    if (name === ATTR_MODE && newValue !== oldValue) {
-      console.log(`${ATTR_MODE}=${newValue}`);
-
-      this.$boxes.forEach(box => {
-        box.setAttribute(animatedBoxAttributes.ATTR_MODE, newValue);
-      });
+    if (newValue !== oldValue) {
+      if (name === ATTR_MODE) {
+        this.$boxes.forEach(box => {
+          box.setAttribute(animatedBoxAttributes.ATTR_MODE, newValue);
+        });
+      } else if (name === ATTR_SELECTEDINDEX) {
+        const selectedIndex = parseInt(newValue);
+        this.$boxes.forEach((box, index) => {
+          index === selectedIndex
+            ? box.setAttribute(animatedBoxAttributes.ATTR_SELECTED, '')
+            : box.removeAttribute(animatedBoxAttributes.ATTR_SELECTED);
+        });
+      }
     }
   }
 
   set contentElements([...elements]) {
-    const onClick = this.boxClicked.bind(this);
-
     this.$boxes = elements.map((childNode, index) => {
       const box = document.createElement('animated-box');
       box.setAttribute(animatedBoxAttributes.ATTR_INDEX, `${index}`);
       box.setAttribute(animatedBoxAttributes.ATTR_BOXCOUNT, `${elements.length}`);
       box.setAttribute(animatedBoxAttributes.ATTR_MODE, this.mode);
       box.appendChild(childNode);
-      box.addEventListener('click', onClick);
       return box;
     });
 
     this.$squareContainer.textContent = '';
     this.$squareContainer.append(...this.$boxes);
-  }
-
-  boxClicked({ target }) {
-    let selectedIndex = null;
-
-    this.$boxes.forEach((boxNode, index) => {
-      if (this.mode === 'grid' && boxNode.contains(target)) {
-        boxNode.setAttribute(animatedBoxAttributes.ATTR_SELECTED, '');
-        selectedIndex = index;
-      } else {
-        boxNode.removeAttribute(animatedBoxAttributes.ATTR_SELECTED);
-      }
-    });
-
-    this.dispatchEvent(onSelectEvent(selectedIndex));
   }
 
   get mode() {

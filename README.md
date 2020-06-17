@@ -1,4 +1,4 @@
-# WebComponent for an animated Grid/List
+# Web Components example project: animated photo viewer
 
 _(ToDo: add description, maybe screenshots)_
 
