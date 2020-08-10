@@ -15,7 +15,6 @@ const createTemplate = template`
     
     :host {
       position: relative;
-      width: 100%;
       display: flex;
     }
     .wrapper {

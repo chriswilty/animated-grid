@@ -1,5 +1,6 @@
 # Web Components example project: animated photo viewer
 
+This is a demo project using [Pexel]()
 _(ToDo: add description, maybe screenshots)_
 
 ## Installation

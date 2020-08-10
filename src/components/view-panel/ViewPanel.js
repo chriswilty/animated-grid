@@ -2,17 +2,14 @@ import { commonStyle } from 'src/common-style';
 import { template } from 'src/tags/html';
 
 const BUTTON_FADE_SECS = 0.15;
+const BUTTON_OPACITY_SECS = 0.8
 
 const createTemplate = template`
   <style>
     ${commonStyle}
     
     :host {
-      position: absolute;
-      left: 100%;
-      top: 0;
-      bottom: 0;
-      width: calc(100% * 2 / 3);
+      position: relative;
       display: flex;
     }
     .wrapper {
@@ -38,8 +35,13 @@ const createTemplate = template`
       justify-content: center;
       align-items: center;
       background-color: white;
+      opacity: 0;
       cursor: pointer;
-      transition: border-color ${BUTTON_FADE_SECS}s;
+      transition: border-color ${BUTTON_FADE_SECS}s ease, opacity ${BUTTON_OPACITY_SECS}s cubic-bezier(0.3, 1.0, 0.3, 1.0);
+    }
+    .close.show {
+      opacity: 1;
+      transition-timing-function: ease, cubic-bezier(0.9, 0.1, 0.5, 0.5);
     }
     .close span {
       font-size: 42px;
@@ -78,11 +80,11 @@ class ViewPanel extends HTMLElement {
 
   set contentElement(element) {
     if (element === null) {
-      this.$host.style.left = '100%';
+      this.$close.classList.remove('show');
     } else {
       this.$wrapper.lastChild && this.$wrapper.lastChild.remove();
       this.$wrapper.appendChild(element.cloneNode(true));
-      this.$host.style.left = 'calc(100% / 3)';
+      this.$close.classList.add('show');
     }
   }
 }

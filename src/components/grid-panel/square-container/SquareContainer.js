@@ -15,17 +15,12 @@ const createTemplate = template`
     .wrapper {
       position: relative;
       width: 100%;
-      margin: auto;
       height: 100%;
     }
     .square {
-      position: absolute;
-      top: 0;
-      left: 0;
       width: 100%;
-      height: 100%;
-      display: flex;
-      flex-wrap: wrap;
+      height: calc(100% + 2px);
+      margin: -1px 0;
     }
   </style>
   <div class="wrapper">
