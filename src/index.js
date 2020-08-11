@@ -23,40 +23,44 @@ const createTemplate = template`
       display: flex;
       overflow: hidden;
     }
+    grid-panel {
+      padding: 0;
+      flex: 0 0 auto;
+      transition: width ${timing.default}, padding-right ${timing.default};
+    }
     grid-panel.groups {
       width: 100%;
-      padding: 0;
-      flex: 1 0 auto;
-      transition: width ${timing.default};
     }
     grid-panel.groups.side {
       width: 25%;
+      padding-right: ${spacing.xl};
     }
     grid-panel.groups.hide {
       width: 0;
-      overflow: hidden;
+      padding-right: 0;
     }
     grid-panel.photos {
       width: 75%;
-      padding: 0;
-      flex: 1 0 auto;
-      transition: width ${timing.default}, padding-left ${timing.default};
     }
     grid-panel.photos.side {
       width: 25%;
+      padding-right: ${spacing.xl};
     }
     grid-panel.photos.hide {
       width: 0;
+      padding-right: 0;
+    }
+    grid-panel.hide {
       overflow: hidden;
     }
     view-panel {
       width: 75%;
-      padding: 0 0 0 ${spacing.xl};
-      flex: 1 1 auto;
-      transition: padding-left ${timing.default};
+      padding: 0;
+      flex: 0 0 auto;
+      transition: width ${timing.default};
     }
     view-panel.hide {
-      padding-left: 0;
+      width: 0;
     }
   </style>
 
@@ -93,7 +97,7 @@ class App extends HTMLElement {
     this.onClosePhoto = this.onClosePhoto.bind(this);
 
     // TODO Extract from localstorage, with default written to LS if not found?
-    this._colours = ['red', 'orange', 'green', 'blue'];
+    this._colours = ['red', 'yellow', 'green', 'blue'];
 
     this._loadingSpinner = null;
     this._groupElements = [];

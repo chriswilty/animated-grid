@@ -57,7 +57,7 @@ const createTemplate = template`
     .link:hover {
       border-color: #efefef;
       color: #efefef;
-      opacity: 0.75;
+      opacity: 0.8;
     }
     .link.show {
       display: inline-block;
