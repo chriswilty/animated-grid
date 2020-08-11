@@ -1,17 +1,13 @@
-import { commonStyle } from 'src/common-style';
+import { commonStyle, spacing, timing } from 'src/common-style';
 import { getPage } from 'src/service/pexel';
 import { template } from 'src/tags/html';
 
 import 'src/components/grid-panel';
+import 'src/components/grid-panel/photo-box';
 import 'src/components/loading';
 import 'src/components/view-panel';
 
 import PexelImage from 'src/assets/pexels.png';
-
-const DEFAULT_TRANSITION_SECS = 0.8;
-const SPACING_XXS = 3;
-const SPACING_XS = 6;
-const SPACING_XL = 18;
 
 const createTemplate = template`
   <style>
@@ -23,7 +19,7 @@ const createTemplate = template`
       top: 0;
       right: 0;
       bottom: 0;
-      margin: ${SPACING_XL}px;
+      margin: ${spacing.xl};
       display: flex;
       overflow: hidden;
     }
@@ -31,52 +27,36 @@ const createTemplate = template`
       width: 100%;
       padding: 0;
       flex: 1 0 auto;
-      transition: width ${DEFAULT_TRANSITION_SECS}s;
+      transition: width ${timing.default};
     }
     grid-panel.groups.side {
       width: 25%;
     }
     grid-panel.groups.hide {
       width: 0;
+      overflow: hidden;
     }
     grid-panel.photos {
       width: 75%;
       padding: 0;
       flex: 1 0 auto;
-      transition: width ${DEFAULT_TRANSITION_SECS}s, padding-left ${DEFAULT_TRANSITION_SECS}s;
+      transition: width ${timing.default}, padding-left ${timing.default};
     }
     grid-panel.photos.side {
       width: 25%;
-      padding-left: ${SPACING_XL}px;
     }
     grid-panel.photos.hide {
       width: 0;
+      overflow: hidden;
     }
     view-panel {
       width: 75%;
-      padding: 0 0 0 ${SPACING_XL}px;
+      padding: 0 0 0 ${spacing.xl};
       flex: 1 1 auto;
-      transition: padding-left ${DEFAULT_TRANSITION_SECS}s;
+      transition: padding-left ${timing.default};
     }
     view-panel.hide {
       padding-left: 0;
-    }
-    .photo {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .photo .label {
-      display: inline-block;
-      border: 2px solid #cfcfcf;
-      border-radius: 6px;
-      padding: ${SPACING_XXS}px ${SPACING_XS}px;
-      background-color: dimgrey;
-      color: #cfcfcf;
-      opacity: 0.85;
-      font-size: 150%;
     }
   </style>
 
@@ -85,36 +65,16 @@ const createTemplate = template`
   <view-panel class="hide"></view-panel>
 `;
 
-// TODO Extract this to a separate component!
 const createPhotoContainer = ({ name, photo, onClick }) => {
-  const container = document.createElement('div');
-  container.setAttribute('name', name);
-  container.style.background = `url(${photo.url.original}) center/cover no-repeat`;
-  // Class not working cos it's in the wrong shadow dom! Hence the need to extract this component.
-  container.classList.add('photo');
-  container.style.width = '100%';
-  container.style.height = '100%';
-  container.style.display = 'flex';
-  container.style.alignItems = 'center';
-  container.style.justifyContent = 'center';
-  container.addEventListener('click', onClick);
+  const photoBox = document.createElement('photo-box');
 
-  if (name) {
-    const label = document.createElement('div');
-    label.classList.add('label');
-    label.style.display = 'inline-block';
-    label.style.border = '2px solid #cfcfcf';
-    label.style.borderRadius = '6px';
-    label.style.padding = `${SPACING_XXS}px ${SPACING_XS}px`;
-    label.style.backgroundColor = 'dimgrey';
-    label.style.color = '#cfcfcf';
-    label.style.opacity = '0.85';
-    label.style.fontSize = '125%';
-    label.appendChild(document.createTextNode(name));
-    container.appendChild(label);
-  }
+  photoBox.setAttribute('url', photo.url.original);
+  photoBox.setAttribute('link', photo.url.author);
+  name && photoBox.setAttribute('name', name);
 
-  return container;
+  photoBox.addEventListener('click', onClick);
+
+  return photoBox;
 };
 
 class App extends HTMLElement {
@@ -210,11 +170,13 @@ class App extends HTMLElement {
 
       this.$gridPanelPhotos.setAttribute('selectedindex', `${selectedIndex}`);
       this.$gridPanelPhotos.setAttribute('mode', 'list');
+      this.$gridPanelGroups.classList.add('hide');
       this.$gridPanelPhotos.classList.add('side');
       this.$viewPanel.classList.remove('hide');
     } else {
       this.$gridPanelPhotos.setAttribute('selectedindex', '-1');
       this.$gridPanelPhotos.setAttribute('mode', 'grid');
+      this.$gridPanelGroups.classList.remove('hide');
       this.$gridPanelPhotos.classList.remove('side');
       this.$viewPanel.classList.add('hide');
     }

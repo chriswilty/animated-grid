@@ -1,4 +1,4 @@
-import { commonStyle } from 'src/common-style';
+import { commonStyle, timing } from 'src/common-style';
 import { template } from 'src/tags/html';
 
 export const ATTR_INDEX = 'index';
@@ -6,7 +6,6 @@ export const ATTR_BOXCOUNT = 'boxcount';
 export const ATTR_MODE = 'mode';
 export const ATTR_SELECTED = 'selected';
 export const ATTR_TRANSITION = 'transition';
-const DEFAULT_TRANSITION_SECS = 0.8;
 
 const calculateGridLength = numNodes => {
   let side = 1;
@@ -30,10 +29,10 @@ const createTemplate = template`
       align-items: center;
       justify-content: center;
       background-color: white;
-      transition: width ${DEFAULT_TRANSITION_SECS}s, height ${DEFAULT_TRANSITION_SECS}s, left ${DEFAULT_TRANSITION_SECS}s, top ${DEFAULT_TRANSITION_SECS}s;
+      transition: width ${timing.default}, height ${timing.default}, left ${timing.default}, top ${timing.default};
     }
     .box.selected {
-      border-color: #ff9900;
+      border-color: #3f3f3f;
     }
   </style>
   <div class="box">
@@ -61,8 +60,8 @@ class AnimatedBox extends HTMLElement {
       const func = newValue !== null ? 'add' : 'remove';
       this.$box.classList[func]('selected');
     } else if (name === ATTR_TRANSITION && newValue !== oldValue) {
-      const secs = newValue || DEFAULT_TRANSITION_SECS;
-      this.$box.style.transition = `width ${secs}s, height ${secs}s, left ${secs}s, top ${secs}s`;
+      const secs = newValue ? `${newValue}s` : timing.default;
+      this.$box.style.transition = `width ${secs}, height ${secs}, left ${secs}, top ${secs}`;
     } else {
       if (name === ATTR_BOXCOUNT && newValue !== oldValue) {
         this._gridLength = calculateGridLength(newValue);

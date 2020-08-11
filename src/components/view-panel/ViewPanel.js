@@ -1,8 +1,5 @@
-import { commonStyle } from 'src/common-style';
+import { commonStyle, timing } from 'src/common-style';
 import { template } from 'src/tags/html';
-
-const BUTTON_FADE_SECS = 0.15;
-const BUTTON_OPACITY_SECS = 0.8
 
 const createTemplate = template`
   <style>
@@ -18,7 +15,7 @@ const createTemplate = template`
       height: 100%;
       overflow: hidden;
       border: 2px solid #cfcfcf;
-      border-radius: 10px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -27,33 +24,38 @@ const createTemplate = template`
       position: absolute;
       top: 6px;
       right: 6px;
-      width: 48px;
-      height: 48px;
-      border: 2px solid #cfcfcf;
-      border-radius: 10px;
+      z-index: 100;
+      width: 36px;
+      height: 36px;
+      border: 2px solid rgba(207, 207, 207, 0.6);
+      border-radius: 6px;
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: white;
+      background-color: rgba(105, 105, 105, 0.6);
       opacity: 0;
       cursor: pointer;
-      transition: border-color ${BUTTON_FADE_SECS}s ease, opacity ${BUTTON_OPACITY_SECS}s cubic-bezier(0.3, 1.0, 0.3, 1.0);
+      transition:
+        border-color ${timing.fadeInOut} ease,
+        background-color ${timing.fadeInOut} ease,
+        opacity ${timing.default} cubic-bezier(0.3, 1.0, 0.3, 1.0);
     }
     .close.show {
       opacity: 1;
-      transition-timing-function: ease, cubic-bezier(0.9, 0.1, 0.5, 0.5);
+      transition-timing-function: ease, ease, cubic-bezier(0.9, 0.1, 0.5, 0.5);
     }
     .close span {
-      font-size: 42px;
+      font-size: 24px;
       font-weight: bold;
-      color: #cfcfcf;
-      transition: color ${BUTTON_FADE_SECS}s;
+      color: rgba(207, 207, 207, 0.6);
+      transition: color ${timing.fadeInOut};
     }
     .close:hover {
-      border-color: #9f9f9f;
+      border-color: rgba(239, 239, 239, 0.8);
+      background-color: rgba(105, 105, 105, 0.8);
     }
     .close:hover span {
-      color: #6f6f6f;
+      color: rgba(239, 239, 239, 0.8);
     }
   </style>
   
@@ -82,8 +84,10 @@ class ViewPanel extends HTMLElement {
     if (element === null) {
       this.$close.classList.remove('show');
     } else {
+      const contentEl = element.cloneNode(true);
+      contentEl.setAttribute('showlink', '');
       this.$wrapper.lastChild && this.$wrapper.lastChild.remove();
-      this.$wrapper.appendChild(element.cloneNode(true));
+      this.$wrapper.appendChild(contentEl);
       this.$close.classList.add('show');
     }
   }
