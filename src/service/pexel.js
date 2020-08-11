@@ -25,11 +25,11 @@ export const getPage = async ({ searchTerm, pageSize = 9, pageNumber = 1 }) => {
   } = await response.json();
 
   const pageCount = Math.ceil(total_results / per_page);
-  const photos = pexelPhotos.map(({ id, width, height, src: { original, medium }, ['photographer_url']: authorUrl }) => ({
+  const photos = pexelPhotos.map(({ id, width, height, src: { large2x, medium }, ['photographer_url']: authorUrl }) => ({
     id,
     width,
     height,
-    url: { original, small: medium, author: authorUrl }
+    url: { original: large2x, small: medium, author: authorUrl }
   }));
 
   return {

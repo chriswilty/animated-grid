@@ -97,7 +97,11 @@ class App extends HTMLElement {
     this.onClosePhoto = this.onClosePhoto.bind(this);
 
     // TODO Extract from localstorage, with default written to LS if not found?
-    this._colours = ['red', 'yellow', 'green', 'blue'];
+    this._categories = {
+      seasons: ['spring', 'summer', 'autumn', 'winter'],
+      colours: ['red', 'yellow', 'green', 'blue']
+    };
+    this._groupNames = Object.values(this._categories)[0] || [];
 
     this._loadingSpinner = null;
     this._groupElements = [];
@@ -126,7 +130,7 @@ class App extends HTMLElement {
 
     this.$gridPanelGroups.contentElements = [this._loadingSpinner];
     this._groupElements = await Promise.all(
-      this._colours.map(async name => {
+      this._groupNames.map(async name => {
         const { photos } = await getPage({ searchTerm: name, pageSize: 1 });
         return createPhotoContainer({ name, photo: photos[0], onClick });
       })
@@ -134,11 +138,6 @@ class App extends HTMLElement {
 
     this.$gridPanelGroups.contentElements = this._groupElements;
     this.$viewPanel.addEventListener('onClose', this.onClosePhoto);
-
-    // TODO Close icon and onClose handler for groups panel?
-
-    // TODO Load photos for all groups in background, or wait for click?
-
   }
 
   async _loadPhotos(searchTerm) {
@@ -170,12 +169,10 @@ class App extends HTMLElement {
   }
 
   onSelectPhoto({ target }) {
-    let selectedIndex;
-
     if (target) {
       const groupIndex = this.$gridPanelGroups.getAttribute('selectedindex');
       const groupName = this._groupElements[groupIndex].getAttribute('name')
-      selectedIndex = this._photoElements[groupName].findIndex(element => element === target)
+      const selectedIndex = this._photoElements[groupName].findIndex(element => element === target)
 
       this.$gridPanelPhotos.setAttribute('selectedindex', `${selectedIndex}`);
       this.$gridPanelPhotos.setAttribute('mode', 'list');
