@@ -112,6 +112,12 @@ class App extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._groupElements.forEach(element => element.removeEventListener('click', this.onSelectGroup));
+
+    Object.keys(this._photoElements).forEach(key =>
+      this._photoElements[key].forEach(element => element.removeEventListener('click', this.onSelectPhoto))
+    );
+
     this.$viewPanel.removeEventListener('onClose', this.onClosePhoto);
   }
 
@@ -134,7 +140,6 @@ class App extends HTMLElement {
     // TODO Load photos for all groups in background, or wait for click?
 
   }
-
 
   async _loadPhotos(searchTerm) {
     const onClick = this.onSelectPhoto;
