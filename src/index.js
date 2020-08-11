@@ -99,7 +99,9 @@ class App extends HTMLElement {
     // TODO Extract from localstorage, with default written to LS if not found?
     this._categories = {
       seasons: ['spring', 'summer', 'autumn', 'winter'],
-      colours: ['red', 'yellow', 'green', 'blue']
+      colours: ['red', 'yellow', 'green', 'blue'],
+      animals: ['cat', 'tiger', 'cheetah', 'dog', 'fox', 'wolf', 'cow', 'wildebeest', 'buffalo'],
+      structures: ['bridge', 'building', 'staircase', 'tower']
     };
     this._groupNames = Object.values(this._categories)[0] || [];
 
