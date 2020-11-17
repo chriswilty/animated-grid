@@ -3,8 +3,8 @@ import { getPage } from 'src/service/pexel';
 import { template } from 'src/tags/html';
 
 import 'src/components/grid-panel';
-import 'src/components/grid-panel/photo-box';
 import 'src/components/loading';
+import 'src/components/photo-box';
 import 'src/components/view-panel';
 
 import PexelImage from 'src/assets/pexels.png';
@@ -28,14 +28,25 @@ const createTemplate = template`
       flex: 0 0 auto;
       transition: width ${timing.default}, padding-right ${timing.default};
     }
-    grid-panel.groups {
+    grid-panel.collections {
       width: 100%;
     }
-    grid-panel.groups.side {
+    grid-panel.collections.side {
       width: 25%;
       padding-right: ${spacing.xl};
     }
-    grid-panel.groups.hide {
+    grid-panel.collections.hide {
+      width: 0;
+      padding-right: 0;
+    }
+    grid-panel.categories {
+      width: 75%;
+    }
+    grid-panel.categories.side {
+      width: 25%;
+      padding-right: ${spacing.xl};
+    }
+    grid-panel.categories.hide {
       width: 0;
       padding-right: 0;
     }
@@ -63,19 +74,21 @@ const createTemplate = template`
       width: 0;
     }
   </style>
-
-  <grid-panel class="groups" mode="grid"></grid-panel>
+  
+  <grid-panel class="collections" mode="grid"></grid-panel>
+  <grid-panel class="categories hide" mode="grid"></grid-panel>
   <grid-panel class="photos hide" mode="grid"></grid-panel>
   <view-panel class="hide"></view-panel>
 `;
 
-const createPhotoContainer = ({ name, photo, onClick }) => {
+const createPhotoContainer = ({ name, url, credit, onClick }) => {
   const photoBox = document.createElement('photo-box');
 
-  photoBox.setAttribute('url', photo.url.original);
-  photoBox.setAttribute('link', photo.url.author);
+  photoBox.setAttribute('url', url);
   name && photoBox.setAttribute('name', name);
-
+  credit && photoBox.setAttribute('crediturl', credit.url);
+  credit && photoBox.setAttribute('creditname', credit.name);
+  credit && photoBox.setAttribute('showcredit', '');
   photoBox.addEventListener('click', onClick);
 
   return photoBox;
@@ -88,25 +101,27 @@ class App extends HTMLElement {
     this._shadowRoot = this.attachShadow({ mode: 'open' });
     this._shadowRoot.appendChild(createTemplate());
 
-    this.$gridPanelGroups = this._shadowRoot.querySelector('grid-panel.groups');
+    this.$gridPanelCollections = this._shadowRoot.querySelector('grid-panel.collections');
+    this.$gridPanelCategories = this._shadowRoot.querySelector('grid-panel.categories');
     this.$gridPanelPhotos = this._shadowRoot.querySelector('grid-panel.photos');
     this.$viewPanel = this._shadowRoot.querySelector('view-panel');
 
-    this.onSelectGroup = this.onSelectGroup.bind(this);
+    this.onSelectCollection = this.onSelectCollection.bind(this);
+    this.onSelectCategory = this.onSelectCategory.bind(this);
     this.onSelectPhoto = this.onSelectPhoto.bind(this);
     this.onClosePhoto = this.onClosePhoto.bind(this);
 
     // TODO Extract from localstorage, with default written to LS if not found?
-    this._categories = {
+    this._collections = {
       seasons: ['spring', 'summer', 'autumn', 'winter'],
       colours: ['red', 'yellow', 'green', 'blue'],
       animals: ['cat', 'tiger', 'cheetah', 'dog', 'fox', 'wolf', 'cow', 'wildebeest', 'buffalo'],
       structures: ['bridge', 'building', 'staircase', 'tower']
     };
-    this._groupNames = Object.values(this._categories)[0] || [];
 
     this._loadingSpinner = null;
-    this._groupElements = [];
+    this._collectionElements = [];
+    this._categoryElements = {};
     this._photoElements = {};
   }
 
@@ -114,81 +129,137 @@ class App extends HTMLElement {
     this._loadingSpinner = document.createElement('loading-spinner');
     this._loadingSpinner.image = PexelImage;
 
-    this._loadGroups();
+    this._loadCollections();
   }
 
   disconnectedCallback() {
-    this._groupElements.forEach(element => element.removeEventListener('click', this.onSelectGroup));
+    this._collectionElements.forEach(element => element.removeEventListener('click', this.onSelectCollection))
+
+    Object.keys(this._categoryElements).forEach(key =>
+        this._categoryElements[key].forEach(element => element.removeEventListener('click', this.onSelectCategory))
+    );
 
     Object.keys(this._photoElements).forEach(key =>
-      this._photoElements[key].forEach(element => element.removeEventListener('click', this.onSelectPhoto))
+        this._photoElements[key].forEach(element => element.removeEventListener('click', this.onSelectPhoto))
     );
 
     this.$viewPanel.removeEventListener('onClose', this.onClosePhoto);
   }
 
-  async _loadGroups() {
-    const onClick = this.onSelectGroup;
+  async _loadCollections() {
+    const onClick = this.onSelectCollection;
 
-    this.$gridPanelGroups.contentElements = [this._loadingSpinner];
-    this._groupElements = await Promise.all(
-      this._groupNames.map(async name => {
-        const { photos } = await getPage({ searchTerm: name, pageSize: 1 });
-        return createPhotoContainer({ name, photo: photos[0], onClick });
-      })
+    this.$gridPanelCollections.contentElements = [this._loadingSpinner];
+    this._collectionElements = await Promise.all(
+        Object.entries(this._collections).map(async ([collection, [category]]) => {
+          const { photos: [{ url }] } = await getPage({ searchTerm: category, pageSize: 1 });
+          return createPhotoContainer({ name: collection, url: url.original, onClick });
+        })
     );
 
-    this.$gridPanelGroups.contentElements = this._groupElements;
+    this.$gridPanelCollections.contentElements = this._collectionElements;
+    // TODO Navigate back to collections view? Or not necessary?
+  }
+
+  async _loadCategories(collection) {
+    const onClick = this.onSelectCategory;
+
+    if (!this._categoryElements[collection]) {
+      this.$gridPanelCategories.contentElements = [this._loadingSpinner];
+      this._categoryElements[collection] = await Promise.all(
+          this._collections[collection].map(async category => {
+            const { photos: [{ url }] } = await getPage({ searchTerm: category, pageSize: 1 });
+            return createPhotoContainer({ name: category, url: url.original, onClick });
+          })
+      );
+    }
+
+    this.$gridPanelCategories.contentElements = this._categoryElements[collection];
     this.$viewPanel.addEventListener('onClose', this.onClosePhoto);
   }
 
-  async _loadPhotos(searchTerm) {
+  async _loadPhotos(category) {
     const onClick = this.onSelectPhoto;
 
-    if (!this._photoElements[searchTerm]) {
+    if (!this._photoElements[category]) {
       this.$gridPanelPhotos.contentElements = [this._loadingSpinner];
-      const { photos } = await getPage({ searchTerm, pageSize: 9 });
-      this._photoElements[searchTerm] = photos.map(photo => createPhotoContainer({ photo, onClick }));
+      const { photos } = await getPage({ searchTerm: category, pageSize: 9 });
+      this._photoElements[category] = photos.map(
+          ({ url, credit }) => createPhotoContainer({ url: url.original, credit, onClick })
+      );
     }
 
-    this.$gridPanelPhotos.contentElements = this._photoElements[searchTerm];
+    this.$gridPanelPhotos.contentElements = this._photoElements[category];
   }
 
-  onSelectGroup({ target }) {
-    const selectedIndex = target ? this._groupElements.findIndex(element => element.contains(target)) : -1;
-    this.$gridPanelGroups.setAttribute('selectedindex', `${selectedIndex}`);
+  onSelectCollection({ target }) {
+    if (target) {
+      const collectionIndex = this._collectionElements.findIndex(element => element.contains(target));
+      const collectionName = this._collectionElements[collectionIndex].getAttribute('name');
 
-    if (selectedIndex >= 0) {
-      this.$gridPanelGroups.setAttribute('mode', 'list');
-      this.$gridPanelGroups.classList.add('side');
-      this.$gridPanelPhotos.classList.remove('hide');
-      this._loadPhotos(this._groupElements[selectedIndex].getAttribute('name'));
+      this.$gridPanelCollections.setAttribute('selectedindex', `${collectionIndex}`);
+      this.$gridPanelCollections.setAttribute('mode', 'list');
+      this.$gridPanelCollections.classList.add('side');
+      this.$gridPanelCategories.classList.remove('hide');
+      this._loadCategories(collectionName);
     } else {
-      this.$gridPanelGroups.setAttribute('mode', 'grid');
-      this.$gridPanelGroups.classList.remove('side');
+      this.$gridPanelCollections.setAttribute('mode', 'grid');
+      this.$gridPanelCollections.classList.remove('side');
+      this.$gridPanelCategories.classList.add('hide');
+    }
+  }
+
+  onSelectCategory({ target }) {
+    if (target) {
+      const collectionIndex = this.$gridPanelCollections.getAttribute('selectedindex');
+      const collectionName = this._collectionElements[collectionIndex].getAttribute('name');
+      const categoryIndex = this._categoryElements[collectionName].findIndex(element => element.contains(target));
+      const categoryName = this._categoryElements[collectionName][categoryIndex].getAttribute('name');
+
+      this.$gridPanelCategories.setAttribute('selectedindex', `${categoryIndex}`);
+      this.$gridPanelCategories.setAttribute('mode', 'list');
+      this.$gridPanelCollections.classList.add('hide');
+      this.$gridPanelCategories.classList.add('side');
+      this.$gridPanelPhotos.classList.remove('hide');
+      this._loadPhotos(categoryName);
+    } else {
+      this.$gridPanelCollections.classList.remove('hide');
+      this.$gridPanelCategories.setAttribute('mode', 'grid');
+      this.$gridPanelCategories.classList.remove('side');
       this.$gridPanelPhotos.classList.add('hide');
     }
   }
 
   onSelectPhoto({ target }) {
-    if (target) {
-      const groupIndex = this.$gridPanelGroups.getAttribute('selectedindex');
-      const groupName = this._groupElements[groupIndex].getAttribute('name')
-      const selectedIndex = this._photoElements[groupName].findIndex(element => element === target)
+    const collectionIndex = this.$gridPanelCollections.getAttribute('selectedindex');
+    const collectionName = this._collectionElements[collectionIndex].getAttribute('name');
+    const categoryIndex = this.$gridPanelCategories.getAttribute('selectedindex');
+    const categoryName = this._categoryElements[collectionName][categoryIndex].getAttribute('name');
 
-      this.$gridPanelPhotos.setAttribute('selectedindex', `${selectedIndex}`);
+    if (target) {
+      const photoIndex = this._photoElements[categoryName].findIndex(element => element.contains(target));
+
+      this.$gridPanelPhotos.setAttribute('selectedindex', `${photoIndex}`);
       this.$gridPanelPhotos.setAttribute('mode', 'list');
-      this.$gridPanelGroups.classList.add('hide');
+      this.$gridPanelCategories.classList.add('hide');
       this.$gridPanelPhotos.classList.add('side');
+      this._photoElements[categoryName].forEach(photoElement => photoElement.removeAttribute('showcredit'));
+
+      this.$viewPanel.photo = {
+        url: target.getAttribute('url'),
+        creditUrl: target.getAttribute('crediturl')
+      };
       this.$viewPanel.classList.remove('hide');
     } else {
       this.$gridPanelPhotos.setAttribute('selectedindex', '-1');
       this.$gridPanelPhotos.setAttribute('mode', 'grid');
-      this.$gridPanelGroups.classList.remove('hide');
+      this.$gridPanelCategories.classList.remove('hide');
       this.$gridPanelPhotos.classList.remove('side');
+      this._photoElements[categoryName].forEach(photoElement => photoElement.setAttribute('showcredit', ''));
+
       this.$viewPanel.classList.add('hide');
+      this.$viewPanel.photo = {};
     }
-    this.$viewPanel.contentElement = target;
   }
 
   onClosePhoto() {

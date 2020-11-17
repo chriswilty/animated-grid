@@ -2,6 +2,7 @@ const searchUrl = 'https://api.pexels.com/v1/search';
 
 export const getPage = async ({ searchTerm, pageSize = 9, pageNumber = 1 }) => {
   const url = `${searchUrl}?query=${searchTerm}&per_page=${pageSize}&page=${pageNumber}`;
+  // TODO redirect to a login screen if no API_KEY?
   const headers = { 'Authorization': process.env.API_KEY };
 
   let response;
@@ -25,11 +26,12 @@ export const getPage = async ({ searchTerm, pageSize = 9, pageNumber = 1 }) => {
   } = await response.json();
 
   const pageCount = Math.ceil(total_results / per_page);
-  const photos = pexelPhotos.map(({ id, width, height, src: { large2x, medium }, ['photographer_url']: authorUrl }) => ({
+  const photos = pexelPhotos.map(({ id, width, height, src: { large2x, medium }, photographer, ['photographer_url']: photographerUrl }) => ({
     id,
     width,
     height,
-    url: { original: large2x, small: medium, author: authorUrl }
+    url: { original: large2x, small: medium },
+    credit: { name: photographer, url: photographerUrl }
   }));
 
   return {

@@ -3,8 +3,9 @@ import { template } from 'src/tags/html';
 
 const ATTR_URL = 'url';
 const ATTR_NAME = 'name';
-const ATTR_LINK = 'link';
-const ATTR_SHOWLINK = 'showlink';
+const ATTR_CREDIT_URL = 'crediturl';
+const ATTR_CREDIT_NAME = 'creditname';
+const ATTR_SHOW_CREDIT = 'showcredit';
 
 const createTemplate = template`
   <style>
@@ -37,7 +38,7 @@ const createTemplate = template`
     .label.show {
       display: inline-block;
     }
-    .link {
+    .credit {
       display: none;
       position: absolute;
       bottom: ${spacing.xs};
@@ -54,25 +55,25 @@ const createTemplate = template`
       cursor: pointer;
       transition: border-color ${timing.fadeInOut}, color ${timing.fadeInOut}, opacity ${timing.fadeInOut};
     }
-    .link:hover {
+    .credit:hover {
       border-color: #efefef;
       color: #efefef;
       opacity: 0.8;
     }
-    .link.show {
+    .credit.show {
       display: inline-block;
     }
   </style>
   <div class="photo">
     <div class="label"></div>
-    <a class="link" target="_blank"></a>
+    <a class="credit" target="_blank"></a>
   </div>
 `;
 
 
 class PhotoBox extends HTMLElement {
   static get observedAttributes() {
-    return [ATTR_URL, ATTR_NAME, ATTR_LINK, ATTR_SHOWLINK];
+    return [ATTR_URL, ATTR_NAME, ATTR_CREDIT_URL, ATTR_CREDIT_NAME, ATTR_SHOW_CREDIT];
   }
 
   constructor() {
@@ -83,21 +84,22 @@ class PhotoBox extends HTMLElement {
 
     this.$photo = this._shadowRoot.querySelector('.photo');
     this.$label = this._shadowRoot.querySelector('.label');
-    this.$link = this._shadowRoot.querySelector('.link');
+    this.$credit = this._shadowRoot.querySelector('.credit');
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (newValue !== oldValue) {
-      if (name === ATTR_URL) {
+      if (name === ATTR_URL && newValue) {
         this.$photo.style.background = `url(${newValue}) center/cover no-repeat`;
       } else if (name === ATTR_NAME) {
         this.$label.textContent = newValue;
-        this.$label.classList[newValue ? 'add' : 'remove']('show');
-      } else if (name === ATTR_LINK) {
-        this.$link.textContent = newValue;
-        this.$link.setAttribute('href', newValue || '#');
-      } else if (name === ATTR_SHOWLINK) {
-        this.$link.classList[newValue === null ? 'remove' : 'add']('show');
+        this.$label.classList.add('show');
+      } else if (name === ATTR_CREDIT_URL) {
+        this.$credit.setAttribute('href', newValue || '');
+      } else if (name === ATTR_CREDIT_NAME) {
+        this.$credit.textContent = newValue;
+      } else if (name === ATTR_SHOW_CREDIT) {
+        this.$credit.classList[newValue === null ? 'remove' : 'add']('show');
       }
     }
   }

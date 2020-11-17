@@ -1,6 +1,8 @@
 import { commonStyle, timing } from 'src/common-style';
 import { template } from 'src/tags/html';
 
+import 'src/components/photo-box';
+
 const createTemplate = template`
   <style>
     ${commonStyle}
@@ -61,6 +63,7 @@ const createTemplate = template`
   
   <div class="wrapper">
     <div class="close"><span>X</span></div>
+    <photo-box showcredit=""></photo-box>
   </div>
 `;
 
@@ -71,25 +74,33 @@ class ViewPanel extends HTMLElement {
     this._shadowRoot = this.attachShadow({ mode: 'open' });
     this._shadowRoot.appendChild(createTemplate());
 
-    this.$host = this._shadowRoot.host;
-    this.$wrapper = this._shadowRoot.querySelector('.wrapper');
+    this.$photoBox = this._shadowRoot.querySelector('photo-box');
     this.$close = this._shadowRoot.querySelector('.close');
+
+    this.closeListener = this.closeListener.bind(this);
   }
 
   connectedCallback() {
-    this.$close.addEventListener('click', () => this.dispatchEvent(new CustomEvent('onClose')));
+    this.$close.addEventListener('click', this.closeListener);
   }
 
-  set contentElement(element) {
-    if (element === null) {
-      this.$close.classList.remove('show');
-    } else {
-      const contentEl = element.cloneNode(true);
-      contentEl.setAttribute('showlink', '');
-      this.$wrapper.lastChild && this.$wrapper.lastChild.remove();
-      this.$wrapper.appendChild(contentEl);
+  disconnectedCallback() {
+    this.$close.removeEventListener('click', this.closeListener);
+  }
+
+  set photo({ url, creditUrl }) {
+    if (url) {
+      this.$photoBox.setAttribute('url', url);
+      this.$photoBox.setAttribute('crediturl', creditUrl);
+      this.$photoBox.setAttribute('creditname', creditUrl);
       this.$close.classList.add('show');
+    } else {
+      this.$close.classList.remove('show');
     }
+  }
+
+  closeListener() {
+    this.dispatchEvent(new CustomEvent('onClose'));
   }
 }
 
