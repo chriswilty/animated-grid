@@ -1,5 +1,6 @@
 import { commonStyle, spacing, timing } from 'src/common-style';
 import { getPage } from 'src/service/pexel';
+import { getCollectionsFromLocalStorage } from 'src/service/storage';
 import { template } from 'src/tags/html';
 
 import 'src/components/grid-panel';
@@ -28,6 +29,9 @@ const createTemplate = template`
       flex: 0 0 auto;
       transition: width ${timing.default}, padding-right ${timing.default};
     }
+    grid-panel.hide {
+      overflow: hidden;
+    }
     grid-panel.collections {
       width: 100%;
     }
@@ -39,30 +43,19 @@ const createTemplate = template`
       width: 0;
       padding-right: 0;
     }
-    grid-panel.categories {
-      width: 75%;
-    }
-    grid-panel.categories.side {
-      width: 25%;
-      padding-right: ${spacing.xl};
-    }
-    grid-panel.categories.hide {
-      width: 0;
-      padding-right: 0;
-    }
+    grid-panel.categories,
     grid-panel.photos {
       width: 75%;
     }
+    grid-panel.categories.side,
     grid-panel.photos.side {
       width: 25%;
       padding-right: ${spacing.xl};
     }
+    grid-panel.categories.hide,
     grid-panel.photos.hide {
       width: 0;
       padding-right: 0;
-    }
-    grid-panel.hide {
-      overflow: hidden;
     }
     view-panel {
       width: 75%;
@@ -112,13 +105,7 @@ class App extends HTMLElement {
     this.onClosePhoto = this.onClosePhoto.bind(this);
 
     // TODO Extract from localstorage, with default written to LS if not found?
-    this._collections = {
-      seasons: ['spring', 'summer', 'autumn', 'winter'],
-      colours: ['red', 'yellow', 'green', 'blue'],
-      animals: ['cat', 'tiger', 'cheetah', 'dog', 'fox', 'wolf', 'cow', 'wildebeest', 'buffalo'],
-      structures: ['bridge', 'building', 'staircase', 'tower']
-    };
-
+    this._collections = getCollectionsFromLocalStorage();
     this._loadingSpinner = null;
     this._collectionElements = [];
     this._categoryElements = {};

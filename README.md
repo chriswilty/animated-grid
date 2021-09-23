@@ -18,10 +18,10 @@ This project uses the wonderful [Pexels](https://www.pexels.com/) as a photo sou
 
 #### Next steps
 
-- Add a Collections grid, linking to the Categories grid, with some default collections.
-- Load collections and categories from LocalStorage, saving defaults if not found.
+- Backward navigation, so user isn't stuck in a photo collection.
 - Ability to add category to existing collection, and update LocalStorage.
-- Ability to add collection, and update LocalStorage.
+- Ability to add new collection, and update LocalStorage.
+- Ability to remove collections and categories.
 - Popup asking for Pexels API key, optionally storing to LocalStorage ("Remember me" checkbox)
 - Navigation through pages of photos (currently you get just one page of up to 9 photos).
 - Add screenshots to this readme.
