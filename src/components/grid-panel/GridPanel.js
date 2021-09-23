@@ -8,28 +8,15 @@ import './square-container';
 const ATTR_MODE = 'mode';
 const ATTR_SELECTEDINDEX = 'selectedindex';
 
-// TODO Sort out that width-based-on-vh measurement?
 const createTemplate = template`
   <style>
     ${commonStyle}
     
     :host {
-      position: relative;
       display: flex;
-    }
-    .wrapper {
-      display: flex;
-      justify-content: center;
-      width: 100%;
-    }
-    square-container {
-      max-width: calc(100vh - 36px);
     }
   </style>
-
-  <div class="wrapper">
-    <square-container></square-container>
-  </div>
+  <square-container></square-container>
 `;
 
 class GridPanel extends HTMLElement {
@@ -74,7 +61,7 @@ class GridPanel extends HTMLElement {
       return box;
     });
 
-    this.$squareContainer.textContent = '';
+    this.$squareContainer.textContent = ''; // Quick way to remove all children of an element
     this.$squareContainer.append(...this.$boxes);
   }
 
